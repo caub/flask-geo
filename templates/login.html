@@ -1,0 +1,55 @@
+{% extends "layout.html" %}
+{% block body %}
+<div id="home" class="{% if register %}hidden{% else %}current{% endif %} page">
+  <div class="flex page">
+    <p style="padding: 1em;"><a href="#about" class="btn btn-info">About</a></p>
+    <h2>Login</h2>
+    {% if error %}<p class=error><strong>Error:</strong> {{ error }}{% endif %}
+    <form action="{{ url_for('login') }}" method=post>
+      <dl>
+        <dt>Username:
+        <dd><input type=text name=username value="test_myapp@yopmail.com">
+        <dt>Password:
+        <dd><input type=password name=password value="1">
+        <dd style="text-align: center;"><input type=submit value=Login class="btn btn-primary">
+        <dd style="text-align: center;padding-top: 1em;"><a href="#register" class="btn">Register</a>
+      </dl>
+    </form>
+  </div>
+</div>
+
+<div id="register" class="{% if register %}current{% else %}hidden{% endif %} page">
+  <div class="flex page">
+    <p style="padding: 1em;"><a href="#" class="btn btn-inverse" style="color: #eee">Back</a></p>
+    {% if error %}<p class=error><strong>Error:</strong> {{ error }}{% endif %}
+    <form action="{{ url_for('register') }}" method=post>
+      <dl>
+        <dt>Username:
+        <dd><input type=text name=username value="">
+        <dt>Password:
+        <dd><input type=password name=password value="">
+        <dt>Confirm:
+        <dd><input type=password name=confirm value="">
+        <dd style="text-align: center;"><input type=submit value=Register class="btn btn-primary">
+      </dl>
+    </form>
+
+  </div>
+</div>
+
+<div id="about" class="hidden page">
+  <div class="flex page" style="text-align: center;">
+
+    <p style="padding: 1em;"><a href="#" class="btn btn-inverse" style="color: #eee">Back</a></p>
+    <p><img src="/static/pin.png" /></p>
+    <p><strong>myMap</strong><br>Version 1.0 beta<br>
+    <a href="http://www.someone.com">By Someone</a></p>
+    <p><em>Create powerful mobile apps with<br> just <a href="http://flask.pocoo.org/">Flask</a>.</em></p>
+    <p>
+      <a target="_blank" href="https://github.com/c-ab/myMap_python">myMap on GitHub</a>
+    </p>
+
+  </div>
+</div>
+
+{% endblock %}
