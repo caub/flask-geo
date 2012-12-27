@@ -23,3 +23,19 @@ small webapp for searching geographic-content, forked from https://github.com/mi
 
   Run `myMap_tests.py` file to see the tests pass.
   
+
+  - [Deploy it](http://flask.pocoo.org/docs/deploying/mod_wsgi/#creating-a-wsgi-file)
+
+  Simplest way to run it as a wsgi application is with Apache: just install mod_wsgi, and add in your VirtualHost config:
+
+```
+    WSGIDaemonProcess myMap user=cab group=cab threads=5
+    WSGIScriptAlias / /home/cab/git/myMap/myMap.wsgi
+
+    <Directory /home/cab/git/myMap>
+      WSGIProcessGroup myMap
+      WSGIApplicationGroup %{GLOBAL}
+      Order deny,allow
+      Allow from all
+    </Directory>
+```

@@ -190,8 +190,6 @@ function delPOI(id){
 
 function addMarker(item){
 	
-	var p = new google.maps.LatLng(item.lat, item.lng)
-	map.setCenter(p);
 	//check if  markers contains this id
 	if (item.id in markers){
 		markers[item.id].setMap(map);
@@ -200,7 +198,7 @@ function addMarker(item){
 	
 	var marker = new google.maps.Marker({
 		map : map,
-		position: p
+		position: new google.maps.LatLng(item.lat, item.lng)
 	});
 	if (item.tags.indexOf("home")>=0){
 		if (item.tags.indexOf("work")>=0)
@@ -295,14 +293,12 @@ function locationHashChanged( evt ) {
 
 	var page = location.hash.substr(1), pages =  $('.page');
 
-	//map hash point id, if any
-	if(evt !== false){
-		console.log("ef");
-		var parts = page.split('=');
-		if (parts.length>1){
-			var marker = markers[parts[1]];
-			marker.infowindow.open(map, marker);
-		}
+	//hash point id (to show on the map), if any
+	var parts = page.split('=');
+	if (evt !== false && parts.length>1){
+		var marker = markers[parts[1]];
+		map.setCenter(marker.getPosition());
+		marker.infowindow.open(map, marker);
 	}
 	
 
