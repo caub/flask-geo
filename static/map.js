@@ -56,7 +56,7 @@ function init() {
 		"<p><label class='checkbox inline' style='padding-top: 1px;'><input type='checkbox' id='home_'>home</label>"+
 		"<label class='checkbox inline' style='padding-top: 1px;'><input type='checkbox' id='work'>work</label></p>"+
 		"<p><textarea id='content'></textarea></p>"+
-		"<a onclick='addPOI();' class='btn btn-small btn-primary btn-block'>Save</a>" 
+		"<a onclick='addPOI();pinInfo.close();' class='btn btn-small btn-primary btn-block'>Save</a>" 
 	});
 	pinInfo.open(map, pinMarker);
 	google.maps.event.addListener(pinMarker, 'click', function(event) {

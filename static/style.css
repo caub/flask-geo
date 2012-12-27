@@ -90,9 +90,14 @@ h1.top {
 }
 .flash {
     background: #CEE5F5;
-    padding: 0.5em;
+    padding: 2px 9px;
     border: 1px solid #AACBE2;
     z-index: 2;
+    position: absolute;
+    width: 50%;
+    right: 25%;
+    top: 7px;
+    opacity: 0.9;
 }
 .error {
     background: #F0D6D6;

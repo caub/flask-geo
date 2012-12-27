@@ -4,7 +4,7 @@
   <div class="flex page">
     <p style="padding: 1em;"><a href="#about" class="btn btn-info">About</a></p>
     <h2>Login</h2>
-    {% if error %}<p class=error><strong>Error:</strong> {{ error }}{% endif %}
+    {% if error %}<p class=error onclick="$(this).hide();"><strong>Error:</strong> {{ error }}{% endif %}
     <form action="{{ url_for('login') }}" method=post>
       <dl>
         <dt>Username:
@@ -21,7 +21,7 @@
 <div id="register" class="{% if register %}current{% else %}hidden{% endif %} page">
   <div class="flex page">
     <p style="padding: 1em;"><a href="#" class="btn btn-inverse" style="color: #eee">Back</a></p>
-    {% if error %}<p class=error><strong>Error:</strong> {{ error }}{% endif %}
+    {% if error %}<p class=error onclick="$(this).hide();"><strong>Error:</strong> {{ error }}{% endif %}
     <form action="{{ url_for('register') }}" method=post>
       <dl>
         <dt>Username:

@@ -77,7 +77,7 @@ def show_map():
     return render_template('map.html')
 
 @app.route('/search')
-def show_points():
+def search_points():
 
 
     if ('earth' in request.args):
@@ -149,7 +149,7 @@ def login():
             error = 'Invalid password'
         else:
             session['logged_in'] = True
-            flash('You were logged in')
+            flash('Logged in')
             return redirect(url_for('show_map'))
     return render_template('login.html', error=error)
 
@@ -171,7 +171,7 @@ def register():
 @app.route('/logout')
 def logout():
     session.pop('logged_in', None)
-    flash('You were logged out')
+    flash('Logged out')
     return redirect(url_for('show_map'))
 
 

@@ -21,7 +21,7 @@
   {% endif %}
   </div> -->
   {% for message in get_flashed_messages() %}
-    <div class=flash>{{ message }}</div>
+    <div class=flash onclick="$(this).hide();">{{ message }}</div>
   {% endfor %}
   {% block body %}{% endblock %}
 
