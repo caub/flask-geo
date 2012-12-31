@@ -40,11 +40,14 @@
     <header style="position: absolute;">
       <h3 style="color: #fff;margin-top: 0px;">Profile</h3>
       <a href="#" class="btn  btn-small" style="position: absolute;top: 7px;left: 1em;">Back</a>
-      <a class="btn btn-small btn-danger" href="/logout" style="position: absolute;top: 7px;right: 1em;">Log out</a>
+      <a class="btn btn-small btn-danger" href="{{ url_for('logout') }}" style="position: absolute;top: 7px;right: 1em;">Log out</a>
     </header>
 
-    <p><img src="/static/pin.png" /></p>
-    <p><strong>myMap</strong><br>Version 1.0 beta<br></p>
+    <p><img src="{{ url_for('static', filename='pin.png') }}" /></p>
+    <p><strong>myMap</strong><br>Version 1.0 beta</p>
+    <p>
+      <a target="_blank" href="https://github.com/c-ab/myMap_python">myMap on GitHub</a>
+    </p>
     <br>
     <p>todo profile</p>
 

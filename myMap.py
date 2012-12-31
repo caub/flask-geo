@@ -15,12 +15,10 @@ from flask import Flask, request, session, g, redirect, url_for, abort, \
      render_template, flash, _app_ctx_stack
 
 from utils import geocell, geotypes, combi
-import json, uuid
-#import sys
-#sys.path.insert(0, '/home/cab/git/myMap')
+import json
 
 # configuration
-DATABASE = '/home/cab/git/myMap/flaskr.db'
+DATABASE = '/local/var/db/flaskr.db'
 DEBUG = True
 SECRET_KEY = 'development key'
 USERNAME = 'test_myapp@yopmail.com'
@@ -94,7 +92,7 @@ def search_points():
     names['tags'] = ''.join(tags)
     db = get_db()
     app.logger.debug(names)
-    cur = db.execute('select id, author, text, lat, lng, time, tags from points JOIN pointscells USING(id) JOIN pointstags USING(id) WHERE %s'%predStr, names)
+    cur = db.execute('select points.id, author, text, lat, lng, time, tags from points JOIN pointscells USING(id) JOIN pointstags USING(id) WHERE '+predStr, names)
     entries = [dict(id=row[0],author=row[1],text=row[2],lat=row[3],lng=row[4],time=row[5],tags=row[6]) for row in cur.fetchall()]
     return json.dumps(entries)
 
@@ -106,7 +104,7 @@ def add_entry():
         abort(401)
 
     app.logger.debug(request.form)
-    id = str(uuid.uuid4())
+    id = request.form['id']
     lat, lng = (request.form['lat'], request.form['lng'])
     lat = float(lat)
     lng = float(lng)
@@ -124,6 +122,7 @@ def add_entry():
     for t in combitags:
         db.execute('insert into pointstags (id, tag_id) values (?, ?)', [id, t])
     db.commit()
+
     flash('New entry was successfully posted')
     return redirect(url_for('show_map'))
 
@@ -151,6 +150,7 @@ def login():
             session['logged_in'] = True
             flash('Logged in')
             return redirect(url_for('show_map'))
+
     return render_template('login.html', error=error)
 
     

@@ -1,37 +1,36 @@
-var map;
-var latlng; // the center point if the map
-var markers = {}; //list of markers on the map
-var rad = 1.35; //radius of search
-var pinMarker, pinInfo;
-var latlng;
-var source;
+var map,
+	latlng, // the center point if the map
+	markers = {}, //list of markers on the map
+	rad = 1.35, //radius of search
+	pinMarker, pinInfo,
+	latlng,
+	socket;
 
 window.onload = init;
 window.onhashchange = locationHashChanged;
 
 function init() {
 	
-	locationHashChanged( false );
+	if (!document.getElementById("map_canvas"))
+		return;
 
-	if (window.EventSource){
-		/*source = new EventSource('/stream');
-		source.onmessage = function(e) {
-			// XSS in chat is fun
-			entry = JSON.parse(e.data);
-		
-			if (!entry.type){
-				document.getElementById('notification').style.display = 'block';
+	socket = io.connect('http://mymed20.sophia.inria.fr');
+	socket.on('sub', function (data) {
+		if (data.id){
+			var span = '<a href="#id='+data.id+'" onclick="popup(this)" style="margin-left:10px;>'+data.text+'</a>';
+		}else{
+			var span = '<span style="margin-left:10px;color:gray;">'+data.author+' in</span>';
+		}
+		if ($('.flash').length) { //notifications already present
+			$('.flash').append(span);
+		} else {
+			$('body').prepend('<div class=flash><span onclick="$(this).parent().remove();" style="margin-left:10px;color:white;font-weight:bold">X</span>'+span+'</div>');
+		}
+	});
 
-				var link = $('<a href="#?id='+entry.id+'" onclick="popup(this)">New publication!</a>');
-				
-				var desc = $('<span style="margin-left: 10px;">'+decodeURIComponent(entry.text)+'...'+'</span>');
-
-				$('#out').prepend(desc).prepend(link).prepend($('<span>[notification (glassfish)]: </span>'));
-			}
-		};*/
-	}
-	
 	//maps
+
+	locationHashChanged( false );
 
 	markerList = {};
 
@@ -46,7 +45,7 @@ function init() {
 	pinMarker = new google.maps.Marker({
 		map : map,
 		draggable: true,
-		icon: '/static/pin.png'
+		icon: '/geo/static/pin.png'
 	});
 
 	pinMarker.setPosition(new google.maps.LatLng(latlng.lat()-6, latlng.lng()-14));
@@ -136,7 +135,7 @@ function getPOIs(){
 
 	q += '&tags='+JSON.stringify(types);
 
-	$.getJSON('/search' + q, function(res){
+	$.getJSON('/geo/search' + q, function(res){
 		//console.log(res);
 		for (var i=0; i<res.length; i++){
 			var item = res[i];
@@ -158,10 +157,12 @@ function addPOI(){
 	if ($('#work').attr('checked'))
 		types.push("work");
 
+	var id = uuid(), text = $('#content').val();
 
-	$.post('/add',
+	$.post('/geo/add',
 		{
-			text: encodeURIComponent($('#content').val()),
+			id: id,
+			text: encodeURIComponent(text),
 			lat: pinMarker.getPosition().lat(),
 			lng: pinMarker.getPosition().lng(),
 			time: parseInt(new Date().getTime()/1000),
@@ -169,6 +170,7 @@ function addPOI(){
 		}, function(res){
 			//console.log(res);
 			//if success add marker
+			socket.emit('pub', { id: id, text:  text.substr(0,30)});
 			getPOIs();
 		}
 	);
@@ -179,7 +181,7 @@ function addPOI(){
 function delPOI(id){
 
 	if (confirm('Are you sure?')){
-		$.getJSON('/delete?id='+id,
+		$.getJSON('/geo/delete?id='+id,
 			function(res){
 				//console.log(res);
 				getPOIs();
@@ -202,11 +204,11 @@ function addMarker(item){
 	});
 	if (item.tags.indexOf("home")>=0){
 		if (item.tags.indexOf("work")>=0)
-			marker.setIcon('/static/homework.png');
+			marker.setIcon('/geo/static/homework.png');
 		else
-			marker.setIcon('/static/home.png');
+			marker.setIcon('/geo/static/home.png');
 	} else if (item.tags.indexOf("work")>=0)
-		marker.setIcon('/static/work.png');
+		marker.setIcon('/geo/static/work.png');
 	
 	marker.infowindow = new google.maps.InfoWindow({
 		content: (item.author ? "<p><b>"+item.author+"</b></p>" : "") +
@@ -315,4 +317,17 @@ function locationHashChanged( evt ) {
 	//for the map
 	//if (map)
 	//	google.maps.event.trigger(map, 'dragend');//resize
+}
+
+function uuid () {
+	var S4 = function (){
+		return Math.floor( Math.random() * 0x10000).toString(16);
+	};
+	return (
+		S4() + S4() + "-" +
+		S4() + "-" +
+		S4() + "-" +
+		S4() + "-" +
+		S4() + S4() + S4()
+	);
 }
