@@ -16,8 +16,9 @@ function init() {
 
 	socket = io.connect('http://mymed20.sophia.inria.fr');
 	socket.on('sub', function (data) {
+		console.log(data);
 		if (data.id){
-			var span = '<a href="#id='+data.id+'" onclick="popup(this)" style="margin-left:10px;>'+data.text+'</a>';
+			var span = '<a href="#id='+data.id+'" onclick="popup(this)" style="margin-left:10px;">'+(data.text||"...")+'</a>';
 		}else{
 			var span = '<span style="margin-left:10px;color:gray;">'+data.author+' in</span>';
 		}
@@ -190,7 +191,7 @@ function delPOI(id){
 }
 
 
-function addMarker(item){
+function addMarker(item, open){
 	
 	//check if  markers contains this id
 	if (item.id in markers){
@@ -215,7 +216,7 @@ function addMarker(item){
 				"<p>" + decodeURIComponent(item.text||"vide...")+"</p>"+
 				"<p><a href='#' onclick='delPOI(\""+item.id+"\");'>delete</a></p>"
 	});
-	//infowindow.open(map, marker);
+
 	google.maps.event.addListener(marker, 'click', function(event) {
 		if (location.hash === '#id='+item.id){
 			locationHashChanged(); //manual trigger
@@ -225,6 +226,11 @@ function addMarker(item){
 	});
 	
 	markers[item.id] = marker;
+
+	if(open){
+		map.setCenter(marker.getPosition());
+		marker.infowindow.open(map, marker);
+	}
 }
 
 function setAllMap(map) {
@@ -303,7 +309,6 @@ function locationHashChanged( evt ) {
 		marker.infowindow.open(map, marker);
 	}
 	
-
 	//page switch
 	for (var i=0; i<pages.length; i++){
 		if (page === pages[i].id){

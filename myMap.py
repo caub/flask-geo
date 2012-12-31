@@ -77,7 +77,6 @@ def show_map():
 @app.route('/search')
 def search_points():
 
-
     if ('earth' in request.args):
         cells=EARTH
     else:
@@ -96,6 +95,12 @@ def search_points():
     entries = [dict(id=row[0],author=row[1],text=row[2],lat=row[3],lng=row[4],time=row[5],tags=row[6]) for row in cur.fetchall()]
     return json.dumps(entries)
 
+@app.route('/get/<id>')
+def get_point():
+    db = get_db()
+    cur = db.execute('select id, author, text, lat, lng, time, tags from points WHERE id=?', [id])
+    entries = [dict(id=row[0],author=row[1],text=row[2],lat=row[3],lng=row[4],time=row[5],tags=row[6]) for row in cur.fetchall()]
+    return json.dumps(entries)
 
 
 @app.route('/add', methods=['POST'])
