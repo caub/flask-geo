@@ -15,13 +15,13 @@ from flask import Flask, request, session, g, redirect, url_for, abort, \
      render_template, flash, _app_ctx_stack
 
 from utils import geocell, geotypes, combi
-import json
+import json, random
 
 # configuration
 DATABASE = '/local/var/db/flaskr.db'
 DEBUG = True
 SECRET_KEY = 'development key'
-USERNAME = 'test_myapp@yopmail.com'
+USERNAME = 'test%s@yopmail.com'%int(random.random()*0x10000)
 PASSWORD = '1'
 EARTH = ['0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f']
 
@@ -121,7 +121,7 @@ def add_entry():
     app.logger.debug(cells)
     db = get_db()
     db.execute('insert into points (id, author, text, lat, lng, time, tags) values (?, ?, ?, ?, ?, ?, ?)',
-                 [id, "test_myapp@yopmail.com", request.form['text'], lat, lng, request.form['time'], request.form['tags']])
+                 [id, request.form['author'], request.form['text'], lat, lng, request.form['time'], request.form['tags']])
     for c in cells:
         db.execute('insert into pointscells (id, cell_id) values (?, ?)', [id, c])
     for t in combitags:
@@ -147,16 +147,18 @@ def del_entry():
 def login():
     error = None
     if request.method == 'POST':
-        if request.form['username'] != app.config['USERNAME']:
+        if request.form['username'] == "":
             error = 'Invalid username'
         elif request.form['password'] != app.config['PASSWORD']:
             error = 'Invalid password'
         else:
             session['logged_in'] = True
+            session['user_name'] = request.form['username']
+            app.logger.debug(session.get('user_name'))
             flash('Logged in')
             return redirect(url_for('show_map'))
 
-    return render_template('login.html', error=error)
+    return render_template('login.html', user_name=USERNAME, error=error)
 
     
 @app.route('/register', methods=['GET', 'POST'])

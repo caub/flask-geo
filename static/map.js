@@ -15,12 +15,15 @@ function init() {
 		return;
 
 	socket = io.connect('http://mymed20.sophia.inria.fr');
+
+	socket.emit('hello', user_name /*set in layout.html*/);
+
 	socket.on('sub', function (data) {
 		console.log(data);
 		if (data.id){
 			var span = '<a href="#id='+data.id+'" onclick="popup(this)" style="margin-left:10px;">'+(data.text||"...")+'</a>';
 		}else{
-			var span = '<span style="margin-left:10px;color:gray;">'+data.author+' in</span>';
+			var span = '<span style="margin-left:10px;color:gray;">'+data.text+'</span>';
 		}
 		if ($('.flash').length) { //notifications already present
 			$('.flash').append(span);
@@ -30,8 +33,6 @@ function init() {
 	});
 
 	//maps
-
-	locationHashChanged( false );
 
 	markerList = {};
 
@@ -91,6 +92,8 @@ function init() {
 	//initial req
 	updateRectangle();
 	getPOIs();
+
+	locationHashChanged( false );
 	
 	if (navigator.geolocation) {
 		navigator.geolocation.watchPosition(displayPosition, displayError, {enableHighAccuracy : true, timeout: 5000, maximumAge: 0});
@@ -143,8 +146,13 @@ function getPOIs(){
 			if (!$('#within').attr('checked') || rectangle.getBounds().contains(new google.maps.LatLng(item.lat, item.lng)))
 				addMarker(item);
 		}
+		if (location.hash.split('=').length > 1) {
+			var marker = markers[location.hash.split('=')[1]];
+			map.setCenter(marker.getPosition());
+			marker.infowindow.open(map, marker);
+			pinInfo.close();
+		}
 	});
-
 
 }
 
@@ -167,11 +175,12 @@ function addPOI(){
 			lat: pinMarker.getPosition().lat(),
 			lng: pinMarker.getPosition().lng(),
 			time: parseInt(new Date().getTime()/1000),
+			author: user_name,
 			tags: JSON.stringify(types)
 		}, function(res){
 			//console.log(res);
 			//if success add marker
-			socket.emit('pub', { id: id, text:  text.substr(0,30)});
+			socket.emit('pub', { id: id, text:  text.substr(0,30), author: user_name});
 			getPOIs();
 		}
 	);

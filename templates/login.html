@@ -8,7 +8,7 @@
     <form action="{{ url_for('login') }}" method=post>
       <dl>
         <dt>Username:
-        <dd><input type=text name=username value="test_myapp@yopmail.com">
+        <dd><input type=text name=username value="{{ user_name }}">
         <dt>Password:
         <dd><input type=password name=password value="1">
         <dd style="text-align: center;"><input type=submit value=Login class="btn btn-primary">
