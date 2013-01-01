@@ -8,6 +8,7 @@ var options = {
 	router: {
 		'mymed20.sophia.inria.fr/node': '127.0.0.1:8000/node',
 		'mymed20.sophia.inria.fr/socket.io': '127.0.0.1:8000/socket.io',
+		'mymed20.sophia.inria.fr/backend': '127.0.0.1:8080/backend',
 		'mymed20.sophia.inria.fr/*': '127.0.0.1:81'
 	}
 };

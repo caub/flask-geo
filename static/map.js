@@ -11,6 +11,8 @@ window.onhashchange = locationHashChanged;
 
 function init() {
 	
+	locationHashChanged( false );
+
 	if (!document.getElementById("map_canvas"))
 		return;
 
@@ -28,7 +30,7 @@ function init() {
 		if ($('.flash').length) { //notifications already present
 			$('.flash').append(span);
 		} else {
-			$('body').prepend('<div class=flash><span onclick="$(this).parent().remove();" style="margin-left:10px;color:white;font-weight:bold">X</span>'+span+'</div>');
+			$('body').prepend('<div class=flash><span onclick="$(this).parent().remove();" style="margin-left:10px;">X</span>'+span+'</div>');
 		}
 	});
 
@@ -69,7 +71,7 @@ function init() {
 
 	google.maps.event.addListener(map, 'drag', updateRectangle);
 
-	google.maps.event.addListener(map, 'dragend', function() {
+	google.maps.event.addListener(map, 'dragend', function(evt) {
 		
 		updateRectangle();
 		if ($('#within').attr('checked')){
@@ -92,8 +94,6 @@ function init() {
 	//initial req
 	updateRectangle();
 	getPOIs();
-
-	locationHashChanged( false );
 	
 	if (navigator.geolocation) {
 		navigator.geolocation.watchPosition(displayPosition, displayError, {enableHighAccuracy : true, timeout: 5000, maximumAge: 0});
@@ -118,7 +118,7 @@ function updateRectangle(){
 
 function getPOIs(){
 	
-	clearOverlays();
+	disableMarkers();
 	var q='?', types = [];
 
 	if (!$('#within').attr('checked')){
@@ -146,12 +146,17 @@ function getPOIs(){
 			if (!$('#within').attr('checked') || rectangle.getBounds().contains(new google.maps.LatLng(item.lat, item.lng)))
 				addMarker(item);
 		}
-		if (location.hash.split('=').length > 1) {
-			var marker = markers[location.hash.split('=')[1]];
-			map.setCenter(marker.getPosition());
-			marker.infowindow.open(map, marker);
-			pinInfo.close();
-		}
+	});
+
+}
+
+function getPOI(id){
+
+	$.getJSON('/geo/get/' + id, function(res){
+		//console.log(res);
+		if (res[0]){
+			addMarker(res[0], true);
+		}	
 	});
 
 }
@@ -205,6 +210,7 @@ function addMarker(item, open){
 	//check if  markers contains this id
 	if (item.id in markers){
 		markers[item.id].setMap(map);
+		markers[item.id].infowindow.close();
 		return;
 	}
 	
@@ -242,23 +248,22 @@ function addMarker(item, open){
 	}
 }
 
-function setAllMap(map) {
+// Shows any overlays currently in the array.
+function enableMarkers(map) {
 	for (var i in markers) {
 		markers[i].setMap(map);
 	}
 }
 // Removes the overlays from the map, but keeps them in the array.
-function clearOverlays() {
-	setAllMap(null);
+function disableMarkers() {
+	for (var i in markers) {
+		markers[i].setMap(null);
+		markers[i].infowindow.close();
+	}
 }
-// Shows any overlays currently in the array.
-function showOverlays() {
-	setAllMap(map);
-}
-
 // Deletes all markers in the array by removing references to them.
-function deleteOverlays() {
-	clearOverlays();
+function deleteMarkers() {
+	disableMarkers();
 	markers = {};
 }
 
@@ -267,10 +272,10 @@ function htmlEntities(str) {
 }
 
 
-function refresh(){
+/*function refresh(){
 	google.maps.event.trigger(map, 'resize');
 	map.setCenter(latlng);
-}
+}*/
 
 function selectRange(el){
 	rad = parseFloat($(el).val()*180/(Math.PI*6371));
@@ -313,9 +318,13 @@ function locationHashChanged( evt ) {
 	//hash point id (to show on the map), if any
 	var parts = page.split('=');
 	if (evt !== false && parts.length>1){
-		var marker = markers[parts[1]];
-		map.setCenter(marker.getPosition());
-		marker.infowindow.open(map, marker);
+		if (!markers[parts[1]]){
+			getPOI(parts[1]);
+		}else{
+			var marker = markers[parts[1]];
+			map.setCenter(marker.getPosition());
+			marker.infowindow.open(map, marker);
+		}
 	}
 	
 	//page switch

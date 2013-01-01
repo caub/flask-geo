@@ -1,7 +1,7 @@
 myMap_python
 ============
 
-small webapp for searching geographic-content, forked from https://github.com/mitsuhiko/flask/tree/master/examples/flaskr
+small webapp sample for geographic Blogging, forked from https://github.com/mitsuhiko/flask/tree/master/examples/flaskr
 
 
 What is it using?
